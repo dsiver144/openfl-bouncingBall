@@ -899,9 +899,9 @@ ApplicationMain.create = function(config) {
 	ManifestResources.init(config);
 	var _this = app.meta;
 	if(__map_reserved["build"] != null) {
-		_this.setReserved("build","171");
+		_this.setReserved("build","2");
 	} else {
-		_this.h["build"] = "171";
+		_this.h["build"] = "2";
 	}
 	var _this1 = app.meta;
 	if(__map_reserved["company"] != null) {
@@ -4164,6 +4164,8 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 	,__class__: openfl_display_Sprite
 });
 var Main = function() {
+	this.deltaTime = 0;
+	this.previousTime = new Date().getTime() / 1000;
 	Main.instance = this;
 	openfl_display_Sprite.call(this);
 	this.get_graphics().beginFill(15814241);
@@ -4184,14 +4186,14 @@ Main.__super__ = openfl_display_Sprite;
 Main.prototype = $extend(openfl_display_Sprite.prototype,{
 	tilemap: null
 	,ball: null
+	,previousTime: null
+	,deltaTime: null
 	,onClick: function(e) {
-		haxe_Log.trace(e.localX,{ fileName : "Main.hx", lineNumber : 50, className : "Main", methodName : "onClick", customParams : [e.localY]});
 		var dx = e.localX - this.ball.realX;
 		var dy = e.localY - this.ball.realY;
-		this.ball.setVelocity(dx * 0.14,dy * 0.14,-35);
+		this.ball.setVelocity(dx * 0.14,dy * 0.14,-60);
 	}
 	,onKeyDown: function(e) {
-		haxe_Log.trace("Here",{ fileName : "Main.hx", lineNumber : 57, className : "Main", methodName : "onKeyDown"});
 		this.ball.onKeyDown(e);
 	}
 	,onEnterFrame: function(e) {
@@ -4608,15 +4610,15 @@ $hxClasses["Ball"] = Ball;
 Ball.__name__ = ["Ball"];
 Ball.__super__ = openfl_display_Tile;
 Ball.prototype = $extend(openfl_display_Tile.prototype,{
-	shadow: null
-	,realX: null
+	realX: null
 	,realY: null
 	,realZ: null
 	,velocity: null
 	,accel: null
 	,gravity: null
+	,shadow: null
 	,setVelocity: function(x,y,z) {
-		haxe_Log.trace("Here",{ fileName : "Ball.hx", lineNumber : 44, className : "Ball", methodName : "setVelocity"});
+		haxe_Log.trace("Here",{ fileName : "Ball.hx", lineNumber : 46, className : "Ball", methodName : "setVelocity"});
 		this.velocity.x = x;
 		this.velocity.y = y;
 		this.velocity.z = z;
@@ -4639,13 +4641,13 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 		this.velocity.x += this.accel.x;
 		this.velocity.y += this.accel.y;
 		this.velocity.z += this.accel.z;
-		this.accel.x *= 0.8;
-		this.accel.y *= 0.8;
-		this.accel.z *= 0.8;
 		if(this.velocity.z < 0) {
 			this.velocity.z += 6.5;
+			if(this.velocity.z > 0) {
+				haxe_Log.trace("Change Dir",{ fileName : "Ball.hx", lineNumber : 78, className : "Ball", methodName : "updateForces"});
+				this.accel.z = 5;
+			}
 		}
-		haxe_Log.trace(this.velocity,{ fileName : "Ball.hx", lineNumber : 82, className : "Ball", methodName : "updateForces"});
 		this.realX += this.velocity.x;
 		this.realY += this.velocity.y;
 		this.realZ += this.velocity.z;
@@ -4653,10 +4655,10 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 			this.realZ = 0;
 		}
 		if(this.velocity.z > 0 && this.realZ == 0) {
-			this.velocity.z = 0;
+			this.velocity.z *= -0.99;
 		}
-		this.velocity.x *= 0.89;
-		this.velocity.y *= 0.89;
+		this.velocity.x *= 0.9;
+		this.velocity.y *= 0.9;
 	}
 	,updatePosition: function() {
 		this.set_x(this.realX + Ball.BALL_WIDTH / 2);
@@ -25905,7 +25907,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 198061;
+	this.version = 278054;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = ["lime","utils","AssetCache"];

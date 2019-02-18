@@ -52,7 +52,6 @@ class Main extends Sprite {
 	}
 	
 	function onClick(e:MouseEvent):Void {
-		trace(e.localX, e.localY);
 		var dx = e.localX - ball.realX;
 		var dy = e.localY - ball.realY;
 		ball.setVelocity(dx * 0.14, dy * 0.14, -60);
