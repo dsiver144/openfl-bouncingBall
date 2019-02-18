@@ -12,6 +12,7 @@ import openfl.display.Tileset;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.events.MouseEvent;
+import haxe.Timer;
 
 class Main extends Sprite {
 	
@@ -19,8 +20,11 @@ class Main extends Sprite {
 	public static inline var SCREEN_HEIGHT = 900;
 	
 	public static var instance(default, null):Main;
+	
 	var tilemap(default, null):Tilemap;
 	var ball:Ball;
+	var previousTime(default, null):Float = Timer.stamp();
+	var deltaTime(default, null):Float = 0;
 	
 	public function new () {
 		instance = this;
@@ -44,17 +48,17 @@ class Main extends Sprite {
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		stage.addEventListener(MouseEvent.CLICK, onClick);
+		
 	}
 	
 	function onClick(e:MouseEvent):Void {
 		trace(e.localX, e.localY);
 		var dx = e.localX - ball.realX;
 		var dy = e.localY - ball.realY;
-		ball.setVelocity(dx * 0.14, dy * 0.14, -35);
+		ball.setVelocity(dx * 0.14, dy * 0.14, -60);
 	}
 	
 	function onKeyDown(e:KeyboardEvent):Void {
-		trace('Here');
 		ball.onKeyDown(e);
 	}
 	

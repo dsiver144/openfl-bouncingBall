@@ -10,7 +10,9 @@ import openfl.ui.Keyboard;
  */
 class Ball extends Tile
 {
-	var shadow:Tile;
+	static var BALL_WIDTH = 30;
+	static var BALL_HEIGHT = 28;
+	
 	public var realX:Float;
 	public var realY:Float;
 	public var realZ:Float;
@@ -19,8 +21,8 @@ class Ball extends Tile
 	public var accel = {'x': .0, 'y': .0, 'z': .0}
 	public var gravity = {'x': .0, 'y': .0, 'z': 0.2}
 	
-	static var BALL_WIDTH = 30;
-	static var BALL_HEIGHT = 28;
+	var shadow:Tile;
+	
 	public function new(x, y, z) 
 	{
 		super();
@@ -70,26 +72,24 @@ class Ball extends Tile
 		this.velocity.y += accel.y;
 		this.velocity.z += accel.z;
 		
-		accel.x *= 0.8;
-		accel.y *= 0.8;
-		accel.z *= 0.8;
-		
-		
-		
 		if (this.velocity.z < 0) {
 			this.velocity.z += 6.5;
+			if (this.velocity.z > 0) {
+				trace('Change Dir');
+				accel.z = 5;
+			}
 		}
-		trace(this.velocity);
 		this.realX += this.velocity.x;
 		this.realY += this.velocity.y;
 		this.realZ += this.velocity.z;
 		
 		if (this.realZ > 0) this.realZ = 0;
 		if (this.velocity.z > 0 && this.realZ == 0) {
-			this.velocity.z = 0;
+			this.velocity.z *= -0.99;
 		}
-		this.velocity.x *= 0.89;
-		this.velocity.y *= 0.89;
+		
+		this.velocity.x *= 0.9;
+		this.velocity.y *= 0.9;
 	}
 	
 	public function updatePosition() {
