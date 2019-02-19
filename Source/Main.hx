@@ -15,6 +15,7 @@ import openfl.ui.Keyboard;
 import openfl.events.MouseEvent;
 import haxe.Timer;
 import openfl.text.TextField;
+import openfl.display.FPS;
 
 class Main extends Sprite {
 	
@@ -42,18 +43,6 @@ class Main extends Sprite {
 		this.graphics.endFill();
 		var bmd = Assets.getBitmapData("assets/Ball.png");
 		
-		var text1 = new TextField();
-		text1.text = "Click to move \n Press [Space] to target other ball.";
-		text1.textColor = 0xffffff;
-		text1.width = 300;
-		text1.height = 300;
-		text1.x = 0;
-		text1.y = 0;
-		text1.scaleX = 2.0;
-		text1.scaleY = 2.0;
-		
-		addChild(text1);
-		
 		tilemap = new Tilemap(SCREEN_WIDTH, SCREEN_HEIGHT, new Tileset(bmd, [
 			new Rectangle(0, 0, 30, 28), // Ball
 			new Rectangle(30, 0, 30, 28) // Ball Shadow
@@ -77,6 +66,22 @@ class Main extends Sprite {
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		stage.addEventListener(MouseEvent.CLICK, onClick);
+		stage.addEventListener(Event.RESIZE, onStageResize);
+		
+		var textField = new TextField();
+		textField.text = "Click to move \n Press [Space] to target other ball.";
+		textField.textColor = 0xffffff;
+		textField.width = 300;
+		textField.height = 300;
+		textField.x = 0;
+		textField.y = 0;
+		textField.scaleX = textField.scaleY = 2.0;
+		addChild(textField);
+		
+		var fps = new FPS();
+		fps.y = 64;
+		fps.textColor = 0xffffff;
+		addChild(fps);
 		
 	}
 	
@@ -92,6 +97,12 @@ class Main extends Sprite {
 		target.setVelocity(dx * 0.14, dy * 0.14, -60);
 	}
 	
+	function onStageResize(e:Event):Void {
+		scaleX = scaleY = Math.min(stage.stageWidth / SCREEN_WIDTH, stage.stageHeight / SCREEN_HEIGHT);
+		x = (stage.stageWidth - width) * 0.5;
+		y = (stage.stageHeight - height) * 0.5;
+	}
+	
 	function onKeyDown(e:KeyboardEvent):Void {
 		//ball.onKeyDown(e);
 		if (e.keyCode == Keyboard.SPACE) {
@@ -104,7 +115,6 @@ class Main extends Sprite {
 	
 	function onEnterFrame(e:Event):Void {
 		// Update stuff here
-		//ball.update();
 		for (otherBall in balls) {
 			otherBall.update();
 		}
