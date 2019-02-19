@@ -899,9 +899,9 @@ ApplicationMain.create = function(config) {
 	ManifestResources.init(config);
 	var _this = app.meta;
 	if(__map_reserved["build"] != null) {
-		_this.setReserved("build","6");
+		_this.setReserved("build","7");
 	} else {
-		_this.h["build"] = "6";
+		_this.h["build"] = "7";
 	}
 	var _this1 = app.meta;
 	if(__map_reserved["company"] != null) {
@@ -4233,7 +4233,7 @@ Main.prototype = $extend(openfl_display_Sprite.prototype,{
 		target.setVelocity(dx * 0.14,dy * 0.14,-60);
 	}
 	,onStageResize: function(e) {
-		this.set_scaleX(this.set_scaleY(Math.max(this.stage.stageWidth / 1920,this.stage.stageHeight / 1080)));
+		this.set_scaleX(this.set_scaleY(Math.min(this.stage.stageWidth / 1920,this.stage.stageHeight / 1080)));
 		this.set_x((this.stage.stageWidth - this.get_width()) * 0.5);
 		this.set_y((this.stage.stageHeight - this.get_height()) * 0.5);
 	}
@@ -26009,7 +26009,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 372024;
+	this.version = 83433;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = ["lime","utils","AssetCache"];
