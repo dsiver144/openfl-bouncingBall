@@ -899,9 +899,9 @@ ApplicationMain.create = function(config) {
 	ManifestResources.init(config);
 	var _this = app.meta;
 	if(__map_reserved["build"] != null) {
-		_this.setReserved("build","4");
+		_this.setReserved("build","5");
 	} else {
-		_this.h["build"] = "4";
+		_this.h["build"] = "5";
 	}
 	var _this1 = app.meta;
 	if(__map_reserved["company"] != null) {
@@ -4639,6 +4639,8 @@ var Ball = function(x,y,z,player) {
 	if(player == null) {
 		player = true;
 	}
+	this.autoJumpCount = 0;
+	this.autoJumpThreshold = 0;
 	this.gravity = { "x" : .0, "y" : .0, "z" : 0.2};
 	this.accel = { "x" : .0, "y" : .0, "z" : .0};
 	this.velocity = { "x" : .0, "y" : .0, "z" : .0};
@@ -4653,6 +4655,7 @@ var Ball = function(x,y,z,player) {
 	this.set_originY(14.);
 	this.shadow.set_originX(15.);
 	this.shadow.set_originY(14.);
+	this.autoJumpThreshold = 30 + Math.floor(Math.random() * 30);
 	if(player == false) {
 		this.set_colorTransform(new openfl_geom_ColorTransform(1,1,1,1,-(Math.random() * 255),-(Math.random() * 255),-(Math.random() * 255)));
 	}
@@ -4670,6 +4673,8 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 	,velocity: null
 	,accel: null
 	,gravity: null
+	,autoJumpThreshold: null
+	,autoJumpCount: null
 	,shadow: null
 	,setVelocity: function(x,y,z) {
 		this.velocity.x = x;
@@ -4685,8 +4690,25 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 		var tmp = e.keyCode == 32;
 	}
 	,update: function() {
+		this.updateAutoJump();
 		this.updateForces();
 		this.updatePosition();
+	}
+	,updateAutoJump: function() {
+		if(this.isTargeted()) {
+			return;
+		}
+		if(this.autoJumpCount < this.autoJumpThreshold) {
+			this.autoJumpCount++;
+		} else {
+			if(Math.random() > 0.8) {
+				var dx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
+				var dy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
+				haxe_Log.trace(dx,{ fileName : "Ball.hx", lineNumber : 81, className : "Ball", methodName : "updateAutoJump", customParams : [dy]});
+				this.setVelocity(dx,dy,-60);
+			}
+			this.autoJumpCount = 0;
+		}
 	}
 	,updateForces: function() {
 		this.velocity.x += this.accel.x;
@@ -25978,7 +26000,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 123952;
+	this.version = 852350;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = ["lime","utils","AssetCache"];

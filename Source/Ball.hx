@@ -18,6 +18,9 @@ class Ball extends Tile
 	public var accel = {'x': .0, 'y': .0, 'z': .0}
 	public var gravity = {'x': .0, 'y': .0, 'z': 0.2}
 	
+	var autoJumpThreshold = 0;
+	var autoJumpCount = 0;
+	
 	var shadow:Tile;
 	
 	public function new(x, y, z, player = true) 
@@ -33,6 +36,8 @@ class Ball extends Tile
 		this.originY = BALL_HEIGHT / 2;
 		this.shadow.originX = BALL_WIDTH / 2;
 		this.shadow.originY = BALL_HEIGHT / 2;
+		
+		autoJumpThreshold = 30 + Math.floor(Math.random() * 30);
 		
 		if (player == false) this.colorTransform = new ColorTransform(1, 1, 1, 1, -(Math.random() * 255), -(Math.random() * 255), -(Math.random() * 255));
 		
@@ -60,8 +65,24 @@ class Ball extends Tile
 	}
 	
 	public function update() {
+		updateAutoJump();
 		updateForces();
 		updatePosition();
+	}
+	
+	public function updateAutoJump() {
+		if (isTargeted()) return;
+		if (autoJumpCount < autoJumpThreshold) {
+			autoJumpCount++;
+		} else {
+			if (Math.random() > 0.8) {
+				var dx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
+				var dy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
+				trace(dx, dy);
+				setVelocity(dx, dy, -60);
+			}
+			autoJumpCount = 0;
+		}
 	}
 	
 	public function updateForces() {
