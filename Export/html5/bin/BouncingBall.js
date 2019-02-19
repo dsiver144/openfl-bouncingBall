@@ -899,9 +899,9 @@ ApplicationMain.create = function(config) {
 	ManifestResources.init(config);
 	var _this = app.meta;
 	if(__map_reserved["build"] != null) {
-		_this.setReserved("build","2");
+		_this.setReserved("build","4");
 	} else {
-		_this.h["build"] = "2";
+		_this.h["build"] = "4";
 	}
 	var _this1 = app.meta;
 	if(__map_reserved["company"] != null) {
@@ -4164,17 +4164,44 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 	,__class__: openfl_display_Sprite
 });
 var Main = function() {
+	this.targetIndex = 0;
+	this.camera = { "x" : .0, "y" : .0, "width" : 1920, "height" : 1080, "target" : null};
 	this.deltaTime = 0;
 	this.previousTime = new Date().getTime() / 1000;
+	this.balls = [];
 	Main.instance = this;
 	openfl_display_Sprite.call(this);
 	this.get_graphics().beginFill(15814241);
-	this.get_graphics().drawRect(0,0,1600,900);
+	this.get_graphics().drawRect(0,0,1920,1080);
 	this.get_graphics().endFill();
 	var bmd = openfl_utils_Assets.getBitmapData("assets/Ball.png");
-	this.tilemap = new openfl_display_Tilemap(1600,900,new openfl_display_Tileset(bmd,[new openfl_geom_Rectangle(0,0,30,28),new openfl_geom_Rectangle(30,0,30,28)]));
+	var text1 = new openfl_text_TextField();
+	text1.set_text("Click to move \n Press [Space] to target other ball.");
+	text1.set_textColor(16777215);
+	text1.set_width(300);
+	text1.set_height(300);
+	text1.set_x(0);
+	text1.set_y(0);
+	text1.set_scaleX(2.0);
+	text1.set_scaleY(2.0);
+	this.addChild(text1);
+	this.tilemap = new openfl_display_Tilemap(1920,1080,new openfl_display_Tileset(bmd,[new openfl_geom_Rectangle(0,0,30,28),new openfl_geom_Rectangle(30,0,30,28)]));
 	this.addChild(this.tilemap);
-	this.ball = new Ball(200,200,0);
+	this.balls.push(new Ball(200,200,0));
+	var _g = 0;
+	while(_g < 20) {
+		var i = _g++;
+		this.balls.push(new Ball(Math.random() * 1920,Math.random() * 1080,0,false));
+	}
+	this.targetIndex = 0;
+	this.setCameraTarget(this.balls[this.targetIndex]);
+	var _g1 = 0;
+	var _g11 = this.balls;
+	while(_g1 < _g11.length) {
+		var otherBall = _g11[_g1];
+		++_g1;
+		this.tilemap.addTile(otherBall);
+	}
 	this.tilemap.addTile(this.ball);
 	this.addEventListener("enterFrame",$bind(this,this.onEnterFrame));
 	this.stage.addEventListener("keyDown",$bind(this,this.onKeyDown));
@@ -4186,18 +4213,39 @@ Main.__super__ = openfl_display_Sprite;
 Main.prototype = $extend(openfl_display_Sprite.prototype,{
 	tilemap: null
 	,ball: null
+	,balls: null
 	,previousTime: null
 	,deltaTime: null
+	,camera: null
+	,targetIndex: null
+	,setCameraTarget: function(target) {
+		this.camera.target = target;
+	}
 	,onClick: function(e) {
-		var dx = e.localX - this.ball.realX;
-		var dy = e.localY - this.ball.realY;
-		this.ball.setVelocity(dx * 0.14,dy * 0.14,-60);
+		var target = this.camera.target;
+		haxe_Log.trace(e.localX,{ fileName : "Main.hx", lineNumber : 89, className : "Main", methodName : "onClick", customParams : [e.localY]});
+		var dx = e.localX - target.get_x();
+		var dy = e.localY - target.get_y();
+		target.setVelocity(dx * 0.14,dy * 0.14,-60);
 	}
 	,onKeyDown: function(e) {
-		this.ball.onKeyDown(e);
+		if(e.keyCode == 32) {
+			this.targetIndex += 1;
+			if(this.targetIndex == this.balls.length) {
+				this.targetIndex = 0;
+			}
+			this.setCameraTarget(this.balls[this.targetIndex]);
+			this.tilemap.addTile(this.camera.target);
+		}
 	}
 	,onEnterFrame: function(e) {
-		this.ball.update();
+		var _g = 0;
+		var _g1 = this.balls;
+		while(_g < _g1.length) {
+			var otherBall = _g1[_g];
+			++_g;
+			otherBall.update();
+		}
 	}
 	,__class__: Main
 });
@@ -4587,7 +4635,10 @@ openfl_display_Tile.prototype = {
 	}
 	,__class__: openfl_display_Tile
 };
-var Ball = function(x,y,z) {
+var Ball = function(x,y,z,player) {
+	if(player == null) {
+		player = true;
+	}
 	this.gravity = { "x" : .0, "y" : .0, "z" : 0.2};
 	this.accel = { "x" : .0, "y" : .0, "z" : .0};
 	this.velocity = { "x" : .0, "y" : .0, "z" : .0};
@@ -4598,10 +4649,13 @@ var Ball = function(x,y,z) {
 	this.realX = x;
 	this.realY = y;
 	this.realZ = z;
-	this.set_originX(Ball.BALL_WIDTH / 2);
-	this.set_originY(Ball.BALL_HEIGHT / 2);
-	this.shadow.set_originX(Ball.BALL_WIDTH / 2);
-	this.shadow.set_originY(Ball.BALL_HEIGHT / 2);
+	this.set_originX(15.);
+	this.set_originY(14.);
+	this.shadow.set_originX(15.);
+	this.shadow.set_originY(14.);
+	if(player == false) {
+		this.set_colorTransform(new openfl_geom_ColorTransform(1,1,1,1,-(Math.random() * 255),-(Math.random() * 255),-(Math.random() * 255)));
+	}
 	this.shadow.set_alpha(0.5);
 	Main.instance.tilemap.addTile(this.shadow);
 	this.updatePosition();
@@ -4618,7 +4672,6 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 	,gravity: null
 	,shadow: null
 	,setVelocity: function(x,y,z) {
-		haxe_Log.trace("Here",{ fileName : "Ball.hx", lineNumber : 46, className : "Ball", methodName : "setVelocity"});
 		this.velocity.x = x;
 		this.velocity.y = y;
 		this.velocity.z = z;
@@ -4629,9 +4682,7 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 		this.accel.z = z;
 	}
 	,onKeyDown: function(e) {
-		if(e.keyCode == 32) {
-			this.setVelocity(5,5,-20);
-		}
+		var tmp = e.keyCode == 32;
 	}
 	,update: function() {
 		this.updateForces();
@@ -4644,7 +4695,6 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 		if(this.velocity.z < 0) {
 			this.velocity.z += 6.5;
 			if(this.velocity.z > 0) {
-				haxe_Log.trace("Change Dir",{ fileName : "Ball.hx", lineNumber : 78, className : "Ball", methodName : "updateForces"});
 				this.accel.z = 5;
 			}
 		}
@@ -4660,11 +4710,32 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 		this.velocity.x *= 0.9;
 		this.velocity.y *= 0.9;
 	}
+	,isTargeted: function() {
+		var camera = Main.instance.camera;
+		return camera.target == this;
+	}
 	,updatePosition: function() {
-		this.set_x(this.realX + Ball.BALL_WIDTH / 2);
-		this.set_y(this.realY + this.realZ + Ball.BALL_HEIGHT / 2);
-		this.shadow.set_x(this.realX + Ball.BALL_WIDTH / 2);
-		this.shadow.set_y(this.realY + Ball.BALL_HEIGHT / 2 + 12);
+		var camera = Main.instance.camera;
+		if(this.isTargeted()) {
+			var dx = this.realX - camera.x;
+			var dy = this.realY - camera.y;
+			camera.x += dx * 0.05;
+			camera.y += dy * 0.05;
+		}
+		var cameraOffsetX = camera.x - camera.width * 0.5;
+		var cameraOffsetY = camera.y - camera.height * 0.5;
+		this.set_x(this.realX + 15.);
+		this.set_y(this.realY + this.realZ + 14.);
+		this.shadow.set_x(this.realX + 15.);
+		this.shadow.set_y(this.realY + 14. + 12);
+		var _g = this;
+		_g.set_x(_g.get_x() - cameraOffsetX);
+		var _g1 = this;
+		_g1.set_y(_g1.get_y() - cameraOffsetY);
+		var _g2 = this.shadow;
+		_g2.set_x(_g2.get_x() - cameraOffsetX);
+		var _g3 = this.shadow;
+		_g3.set_y(_g3.get_y() - cameraOffsetY);
 	}
 	,__class__: Ball
 });
@@ -25907,7 +25978,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 278054;
+	this.version = 123952;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = ["lime","utils","AssetCache"];
@@ -75331,10 +75402,11 @@ openfl_display_DisplayObject.__tempStack = new lime_utils_ObjectPool(function() 
 },function(stack) {
 	stack.set_length(0);
 });
-Main.SCREEN_WIDTH = 1600;
-Main.SCREEN_HEIGHT = 900;
+Main.SCREEN_WIDTH = 1920;
+Main.SCREEN_HEIGHT = 1080;
 Ball.BALL_WIDTH = 30;
 Ball.BALL_HEIGHT = 28;
+Ball.CAMERA_EASING = 0.05;
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
