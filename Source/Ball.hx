@@ -4,14 +4,11 @@ import openfl.geom.ColorTransform;
 import openfl.events.KeyboardEvent;
 import openfl.ui.Keyboard;
 
-/**
- * ...
- * @author ...
- */
 class Ball extends Tile
 {
-	static var BALL_WIDTH = 30;
-	static var BALL_HEIGHT = 28;
+	public static inline var BALL_WIDTH = 30;
+	public static inline var BALL_HEIGHT = 28;
+	public static inline var CAMERA_EASING = 0.05;
 	
 	public var realX:Float;
 	public var realY:Float;
@@ -23,7 +20,7 @@ class Ball extends Tile
 	
 	var shadow:Tile;
 	
-	public function new(x, y, z) 
+	public function new(x, y, z, player = true) 
 	{
 		super();
 		this.id = 0;
@@ -37,13 +34,14 @@ class Ball extends Tile
 		this.shadow.originX = BALL_WIDTH / 2;
 		this.shadow.originY = BALL_HEIGHT / 2;
 		
+		if (player == false) this.colorTransform = new ColorTransform(1, 1, 1, 1, -(Math.random() * 255), -(Math.random() * 255), -(Math.random() * 255));
+		
 		this.shadow.alpha = 0.5; 
 		@:privateAccess Main.instance.tilemap.addTile(this.shadow);
 		updatePosition();
 	}
 	
 	public function setVelocity(x, y, z) {
-		trace('Here');
 		this.velocity.x = x;
 		this.velocity.y = y;
 		this.velocity.z = z;
@@ -57,8 +55,7 @@ class Ball extends Tile
 	
 	public function onKeyDown(e:KeyboardEvent):Void {
 		if (e.keyCode == Keyboard.SPACE) {
-			//setAccel(0, 0, -20);
-			setVelocity(5, 5, -20);
+			//setVelocity(5, 5, -20);
 		}
 	}
 	
@@ -75,7 +72,6 @@ class Ball extends Tile
 		if (this.velocity.z < 0) {
 			this.velocity.z += 6.5;
 			if (this.velocity.z > 0) {
-				trace('Change Dir');
 				accel.z = 5;
 			}
 		}
@@ -92,11 +88,33 @@ class Ball extends Tile
 		this.velocity.y *= 0.9;
 	}
 	
-	public function updatePosition() {
-		this.x = this.realX + BALL_WIDTH / 2;
+	public function isTargeted():Bool {
+		var camera = @:privateAccess Main.instance.camera;
+		return camera.target == this;
+	}
+	
+	public function updatePosition(){
+		// Update Camera Following Target
+		var camera = @:privateAccess Main.instance.camera;
+		if (isTargeted()) {
+			var dx = this.realX - camera.x;
+			var dy = this.realY - camera.y;
+			camera.x += dx * CAMERA_EASING;
+			camera.y += dy * CAMERA_EASING;
+		}
+		
+		var cameraOffsetX = camera.x - camera.width * 0.5;
+		var cameraOffsetY = camera.y - camera.height * 0.5;
+		
+		this.x = this.realX + BALL_WIDTH * 0.5;
 		this.y = this.realY + this.realZ + BALL_HEIGHT / 2;
-		this.shadow.x = this.realX + BALL_WIDTH / 2;
-		this.shadow.y = this.realY + BALL_HEIGHT / 2 + 12;
+		this.shadow.x = this.realX + BALL_WIDTH * 0.5;
+		this.shadow.y = this.realY + BALL_HEIGHT * 0.5 + 12;
+		
+		this.x -= cameraOffsetX;
+		this.y -= cameraOffsetY;
+		this.shadow.x -= cameraOffsetX;
+		this.shadow.y -= cameraOffsetY;
 	}
 	
 }
