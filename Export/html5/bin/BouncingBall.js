@@ -899,9 +899,9 @@ ApplicationMain.create = function(config) {
 	ManifestResources.init(config);
 	var _this = app.meta;
 	if(__map_reserved["build"] != null) {
-		_this.setReserved("build","7");
+		_this.setReserved("build","16");
 	} else {
-		_this.h["build"] = "7";
+		_this.h["build"] = "16";
 	}
 	var _this1 = app.meta;
 	if(__map_reserved["company"] != null) {
@@ -4198,7 +4198,7 @@ var Main = function() {
 	this.stage.addEventListener("click",$bind(this,this.onClick));
 	this.stage.addEventListener("resize",$bind(this,this.onStageResize));
 	var textField = new openfl_text_TextField();
-	textField.set_text("Click to move \n Press [Space] to target other ball.");
+	textField.set_text("Click to move \n Press [Space] to control other ball.");
 	textField.set_textColor(16777215);
 	textField.set_width(300);
 	textField.set_height(300);
@@ -4230,7 +4230,7 @@ Main.prototype = $extend(openfl_display_Sprite.prototype,{
 		haxe_Log.trace(e.localX,{ fileName : "Main.hx", lineNumber : 94, className : "Main", methodName : "onClick", customParams : [e.localY]});
 		var dx = e.localX - target.get_x();
 		var dy = e.localY - target.get_y();
-		target.setVelocity(dx * 0.14,dy * 0.14,-60);
+		target.setVelocity(dx * 0.05,dy * 0.05,-60);
 	}
 	,onStageResize: function(e) {
 		this.set_scaleX(this.set_scaleY(Math.min(this.stage.stageWidth / 1920,this.stage.stageHeight / 1080)));
@@ -4711,8 +4711,8 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 			this.autoJumpCount++;
 		} else {
 			if(Math.random() > 0.8) {
-				var dx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
-				var dy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
+				var dx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30 * 0.5);
+				var dy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30 * 0.5);
 				haxe_Log.trace(dx,{ fileName : "Ball.hx", lineNumber : 81, className : "Ball", methodName : "updateAutoJump", customParams : [dy]});
 				this.setVelocity(dx,dy,-60);
 			}
@@ -4738,8 +4738,13 @@ Ball.prototype = $extend(openfl_display_Tile.prototype,{
 		if(this.velocity.z > 0 && this.realZ == 0) {
 			this.velocity.z *= -0.99;
 		}
-		this.velocity.x *= 0.9;
-		this.velocity.y *= 0.9;
+		if(this.realZ == 0) {
+			this.velocity.x *= 0.95;
+			this.velocity.y *= 0.95;
+		} else {
+			this.velocity.x *= 0.999;
+			this.velocity.y *= 0.999;
+		}
 	}
 	,isTargeted: function() {
 		var camera = Main.instance.camera;
@@ -26009,7 +26014,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 83433;
+	this.version = 420041;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = ["lime","utils","AssetCache"];
