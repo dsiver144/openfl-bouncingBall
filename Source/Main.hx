@@ -69,7 +69,7 @@ class Main extends Sprite {
 		stage.addEventListener(Event.RESIZE, onStageResize);
 		
 		var textField = new TextField();
-		textField.text = "Click to move \n Press [Space] to target other ball.";
+		textField.text = "Click to move \n Press [Space] to control other ball.";
 		textField.textColor = 0xffffff;
 		textField.width = 300;
 		textField.height = 300;
@@ -94,7 +94,7 @@ class Main extends Sprite {
 		trace(e.localX, e.localY);
 		var dx = e.localX - target.x;
 		var dy = e.localY - target.y;
-		target.setVelocity(dx * 0.14, dy * 0.14, -60);
+		target.setVelocity(dx * 0.05, dy * 0.05, -60);
 	}
 	
 	function onStageResize(e:Event):Void {

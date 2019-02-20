@@ -76,8 +76,8 @@ class Ball extends Tile
 			autoJumpCount++;
 		} else {
 			if (Math.random() > 0.8) {
-				var dx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
-				var dy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 50);
+				var dx = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30 * 0.5);
+				var dy = (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 30 * 0.5);
 				trace(dx, dy);
 				setVelocity(dx, dy, -60);
 			}
@@ -105,8 +105,15 @@ class Ball extends Tile
 			this.velocity.z *= -0.99;
 		}
 		
-		this.velocity.x *= 0.9;
-		this.velocity.y *= 0.9;
+		if (this.realZ == 0) {
+			// Apply friction when moving on the ground.
+			this.velocity.x *= 0.95;
+			this.velocity.y *= 0.95;
+		} else {
+			this.velocity.x *= 0.999;
+			this.velocity.y *= 0.999;
+		}
+		
 	}
 	
 	public function isTargeted():Bool {
